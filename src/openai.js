@@ -25,7 +25,7 @@ export function isOpenAIEnable(context) {
 export async function requestCompletionsFromOpenAI(message, history, context, onStream) {
   const key = context.openAIKeyFromContext();
   const body = {
-    model: ENV.CHAT_MODEL,
+    model: context.SHARE_CONTEXT.currentModel,
     ...context.USER_CONFIG.OPENAI_API_EXTRA_PARAMS,
     messages: [...(history || []), {role: 'user', content: message}],
     stream: onStream != null,
@@ -66,7 +66,7 @@ export async function requestCompletionsFromOpenAI(message, history, context, on
         if (lengthDelta > updateStep) {
           lengthDelta = 0;
           updateStep += 5;
-          await onStream(`${contentFull}\n${ENV.I18N.message.loading}...`);
+          await onStream(`${contentFull}${ENV.I18N.message.loading}`);
         }
       }
     } catch (e) {

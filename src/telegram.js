@@ -13,6 +13,16 @@ async function sendMessage(message, token, context) {
   const body = {
     text: message,
   };
+  const loading = ENV.I18N.message.loading;
+  if (message.endsWith(loading)) {
+    body.entities = [
+      {
+        type: 'spoiler',
+        offset: message.length - loading.length,
+        length: loading.length,
+      },
+    ];
+  }
   for (const key of Object.keys(context)) {
     if (context[key] !== undefined && context[key] !== null) {
       body[key] = context[key];
