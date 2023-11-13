@@ -32,6 +32,7 @@ export class Context {
 
   // 共享上下文
   SHARE_CONTEXT = {
+    currentModel: null, // 当前模型
     currentBotId: null, // 当前机器人 ID
     currentBotToken: null, // 当前机器人 Token
     currentBotName: null, // 当前机器人名称: xxx_bot
@@ -121,6 +122,9 @@ export class Context {
     this.SHARE_CONTEXT.currentBotId = token.split(':')[0];
     if (ENV.TELEGRAM_BOT_NAME.length > telegramIndex) {
       this.SHARE_CONTEXT.currentBotName = ENV.TELEGRAM_BOT_NAME[telegramIndex];
+    }
+    if (ENV.CHAT_MODEL.length > telegramIndex) {
+      this.SHARE_CONTEXT.currentModel = ENV.CHAT_MODEL[telegramIndex];
     }
   }
 

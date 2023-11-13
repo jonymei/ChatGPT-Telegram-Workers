@@ -24,7 +24,7 @@ class Environment {
   GROUP_CHAT_BOT_SHARE_MODE = false;
 
   // OpenAI的模型名称
-  CHAT_MODEL = 'gpt-3.5-turbo';
+  CHAT_MODEL = [];
   // 为了避免4096字符限制，将消息删减
   AUTO_TRIM_HISTORY = true;
   // 最大历史记录长度

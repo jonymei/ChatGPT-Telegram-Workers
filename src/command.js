@@ -397,7 +397,7 @@ async function commandUsage(message, command, subcommand, context) {
  */
 async function commandSystem(message, command, subcommand, context) {
   let msg = 'Current System Info:\n';
-  msg+='OpenAI Model:'+ENV.CHAT_MODEL+'\n';
+  msg+='OpenAI Model:'+context.SHARE_CONTEXT.currentModel+'\n';
   if (ENV.DEV_MODE) {
     const shareCtx = {...context.SHARE_CONTEXT};
     shareCtx.currentBotToken = '******';
