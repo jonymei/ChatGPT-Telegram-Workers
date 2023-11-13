@@ -17,7 +17,7 @@ var Environment = class {
   // 群组机器人共享模式,关闭后，一个群组只有一个会话和配置。开启的话群组的每个人都有自己的会话上下文
   GROUP_CHAT_BOT_SHARE_MODE = false;
   // OpenAI的模型名称
-  CHAT_MODEL = "gpt-3.5-turbo";
+  CHAT_MODEL = [];
   // 为了避免4096字符限制，将消息删减
   AUTO_TRIM_HISTORY = true;
   // 最大历史记录长度
@@ -41,9 +41,12 @@ var Environment = class {
   // 检查更新的分支
   UPDATE_BRANCH = "master";
   // 当前版本
-  BUILD_TIMESTAMP = 1697784701;
+  BUILD_TIMESTAMP = 1699844684;
   // 当前版本 commit id
-  BUILD_VERSION = "50e577b";
+  BUILD_VERSION = "57df5f6";
+  /**
+   * @type {I18n | null}
+   */
   I18N = null;
   LANGUAGE = "zh-cn";
   // 使用流模式
@@ -165,6 +168,8 @@ var Context = class {
   };
   // 共享上下文
   SHARE_CONTEXT = {
+    currentModel: null,
+    // 当前模型
     currentBotId: null,
     // 当前机器人 ID
     currentBotToken: null,
@@ -253,6 +258,9 @@ var Context = class {
     if (ENV.TELEGRAM_BOT_NAME.length > telegramIndex) {
       this.SHARE_CONTEXT.currentBotName = ENV.TELEGRAM_BOT_NAME[telegramIndex];
     }
+    if (ENV.CHAT_MODEL.length > telegramIndex) {
+      this.SHARE_CONTEXT.currentModel = ENV.CHAT_MODEL[telegramIndex];
+    }
   }
   /**
    *
@@ -336,6 +344,16 @@ async function sendMessage(message, token, context) {
   const body = {
     text: message
   };
+  const loading = ENV.I18N.message.loading;
+  if (message.endsWith(loading)) {
+    body.entities = [
+      {
+        type: "spoiler",
+        offset: message.length - loading.length,
+        length: loading.length
+      }
+    ];
+  }
   for (const key of Object.keys(context)) {
     if (context[key] !== void 0 && context[key] !== null) {
       body[key] = context[key];
@@ -742,7 +760,7 @@ function isOpenAIEnable(context) {
 async function requestCompletionsFromOpenAI(message, history, context, onStream) {
   const key = context.openAIKeyFromContext();
   const body = {
-    model: ENV.CHAT_MODEL,
+    model: context.SHARE_CONTEXT.currentModel,
     ...context.USER_CONFIG.OPENAI_API_EXTRA_PARAMS,
     messages: [...history || [], { role: "user", content: message }],
     stream: onStream != null
@@ -781,8 +799,7 @@ async function requestCompletionsFromOpenAI(message, history, context, onStream)
         if (lengthDelta > updateStep) {
           lengthDelta = 0;
           updateStep += 5;
-          await onStream(`${contentFull}
-${ENV.I18N.message.loading}...`);
+          await onStream(`${contentFull}${ENV.I18N.message.loading}`);
         }
       }
     } catch (e) {
@@ -1957,7 +1974,7 @@ async function commandUsage(message, command, subcommand, context) {
 }
 async function commandSystem(message, command, subcommand, context) {
   let msg = "Current System Info:\n";
-  msg += "OpenAI Model:" + ENV.CHAT_MODEL + "\n";
+  msg += "OpenAI Model:" + context.SHARE_CONTEXT.currentModel + "\n";
   if (ENV.DEV_MODE) {
     const shareCtx = { ...context.SHARE_CONTEXT };
     shareCtx.currentBotToken = "******";
@@ -2526,7 +2543,7 @@ var zh_hans_default = {
     "not_supported_configuration": "\u4E0D\u652F\u6301\u7684\u914D\u7F6E\u9879\u6216\u6570\u636E\u7C7B\u578B\u9519\u8BEF"
   },
   message: {
-    "loading": "\u52A0\u8F7D\u4E2D",
+    "loading": "\u2026",
     "not_supported_chat_type": (type) => `\u6682\u4E0D\u652F\u6301${type}\u7C7B\u578B\u7684\u804A\u5929`,
     "not_supported_chat_type_message": "\u6682\u4E0D\u652F\u6301\u975E\u6587\u672C\u683C\u5F0F\u6D88\u606F",
     "handle_chat_type_message_error": (type) => `\u5904\u7406${type}\u7C7B\u578B\u7684\u804A\u5929\u6D88\u606F\u51FA\u9519`,
@@ -2564,7 +2581,7 @@ var zh_hans_default = {
       "help": "\u8BF7\u8F93\u5165\u56FE\u7247\u63CF\u8FF0\u3002\u547D\u4EE4\u5B8C\u6574\u683C\u5F0F\u4E3A `/img \u72F8\u82B1\u732B`"
     },
     new: {
-      "new_chat_start": "\u65B0\u7684\u5BF9\u8BDD\u5DF2\u7ECF\u5F00\u59CB",
+      "new_chat_start": "",
       "new_chat_start_private": (id) => `\u65B0\u7684\u5BF9\u8BDD\u5DF2\u7ECF\u5F00\u59CB\uFF0C\u4F60\u7684ID(${id})`,
       "new_chat_start_group": (id) => `\u65B0\u7684\u5BF9\u8BDD\u5DF2\u7ECF\u5F00\u59CB\uFF0C\u7FA4\u7EC4ID(${id})`
     },
