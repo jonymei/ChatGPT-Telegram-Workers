@@ -398,18 +398,18 @@ async function commandUsage(message, command, subcommand, context) {
 async function commandSystem(message, command, subcommand, context) {
   let msg = 'Current System Info:\n';
   msg+='OpenAI Model:'+context.SHARE_CONTEXT.currentModel+'\n';
-  if (ENV.DEV_MODE) {
-    const shareCtx = {...context.SHARE_CONTEXT};
-    shareCtx.currentBotToken = '******';
-    context.USER_CONFIG.OPENAI_API_KEY = '******';
+  // if (ENV.DEV_MODE) {
+  const shareCtx = {...context.SHARE_CONTEXT};
+  shareCtx.currentBotToken = '******';
+  context.USER_CONFIG.OPENAI_API_KEY = '******';
 
-    msg += '<pre>';
-    msg += `USER_CONFIG: \n${JSON.stringify(context.USER_CONFIG, null, 2)}\n`;
-    msg += `CHAT_CONTEXT: \n${JSON.stringify(context.CURRENT_CHAT_CONTEXT, null, 2)}\n`;
-    msg += `SHARE_CONTEXT: \n${JSON.stringify(shareCtx, null, 2)}\n`;
+  msg += '<pre>';
+  msg += `USER_CONFIG: \n${JSON.stringify(context.USER_CONFIG, null, 2)}\n`;
+  msg += `CHAT_CONTEXT: \n${JSON.stringify(context.CURRENT_CHAT_CONTEXT, null, 2)}\n`;
+  msg += `SHARE_CONTEXT: \n${JSON.stringify(shareCtx, null, 2)}\n`;
 
-    msg+='</pre>';
-  }
+  msg+='</pre>';
+  // }
   context.CURRENT_CHAT_CONTEXT.parse_mode = 'HTML';
   return sendMessageToTelegramWithContext(context)(msg);
 }
