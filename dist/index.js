@@ -41,9 +41,9 @@ var Environment = class {
   // 检查更新的分支
   UPDATE_BRANCH = "master";
   // 当前版本
-  BUILD_TIMESTAMP = 1699844684;
+  BUILD_TIMESTAMP = 1710139051;
   // 当前版本 commit id
-  BUILD_VERSION = "57df5f6";
+  BUILD_VERSION = "8c1ab2a";
   /**
    * @type {I18n | null}
    */
@@ -63,6 +63,7 @@ var Environment = class {
   OPENAI_API_DOMAIN = "https://api.openai.com";
   // OpenAI API BASE `https://api.openai.com/v1`
   OPENAI_API_BASE = null;
+  SPARK_API_BASE = null;
   // Azure API Key
   AZURE_API_KEY = null;
   // Azure Completions API
@@ -86,6 +87,7 @@ function initEnv(env, i18n2) {
   const envValueTypes = {
     SYSTEM_INIT_MESSAGE: "string",
     OPENAI_API_BASE: "string",
+    SPARK_API_BASE: "string",
     AZURE_API_KEY: "string",
     AZURE_COMPLETIONS_API: "string"
   };
@@ -774,6 +776,9 @@ async function requestCompletionsFromOpenAI(message, history, context, onStream)
     "Content-Type": "application/json",
     "Authorization": `Bearer ${key}`
   };
+  if (context.SHARE_CONTEXT.currentModel.startsWith("gpt-ernie")) {
+    url = `${ENV.SPARK_API_BASE}/chat/completions`;
+  }
   if (ENV.AZURE_COMPLETIONS_API) {
     url = ENV.AZURE_COMPLETIONS_API;
     header["api-key"] = key;
@@ -1975,22 +1980,20 @@ async function commandUsage(message, command, subcommand, context) {
 async function commandSystem(message, command, subcommand, context) {
   let msg = "Current System Info:\n";
   msg += "OpenAI Model:" + context.SHARE_CONTEXT.currentModel + "\n";
-  if (ENV.DEV_MODE) {
-    const shareCtx = { ...context.SHARE_CONTEXT };
-    shareCtx.currentBotToken = "******";
-    context.USER_CONFIG.OPENAI_API_KEY = "******";
-    msg += "<pre>";
-    msg += `USER_CONFIG: 
+  const shareCtx = { ...context.SHARE_CONTEXT };
+  shareCtx.currentBotToken = "******";
+  context.USER_CONFIG.OPENAI_API_KEY = "******";
+  msg += "<pre>";
+  msg += `USER_CONFIG: 
 ${JSON.stringify(context.USER_CONFIG, null, 2)}
 `;
-    msg += `CHAT_CONTEXT: 
+  msg += `CHAT_CONTEXT: 
 ${JSON.stringify(context.CURRENT_CHAT_CONTEXT, null, 2)}
 `;
-    msg += `SHARE_CONTEXT: 
+  msg += `SHARE_CONTEXT: 
 ${JSON.stringify(shareCtx, null, 2)}
 `;
-    msg += "</pre>";
-  }
+  msg += "</pre>";
   context.CURRENT_CHAT_CONTEXT.parse_mode = "HTML";
   return sendMessageToTelegramWithContext(context)(msg);
 }
