@@ -77,6 +77,8 @@ class Environment {
   // OpenAI API BASE `https://api.openai.com/v1`
   OPENAI_API_BASE = null;
 
+  SPARK_API_BASE = null;
+
   // Azure API Key
   AZURE_API_KEY = null;
   // Azure Completions API
@@ -115,6 +117,7 @@ export function initEnv(env, i18n) {
   const envValueTypes = {
     SYSTEM_INIT_MESSAGE: 'string',
     OPENAI_API_BASE: 'string',
+    SPARK_API_BASE: 'string',
     AZURE_API_KEY: 'string',
     AZURE_COMPLETIONS_API: 'string',
   };

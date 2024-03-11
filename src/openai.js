@@ -41,6 +41,9 @@ export async function requestCompletionsFromOpenAI(message, history, context, on
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${key}`,
   };
+  if (context.SHARE_CONTEXT.currentModel.startsWith('gpt-ernie')) {
+    url = `${ENV.SPARK_API_BASE}/chat/completions`;
+  }
   if (ENV.AZURE_COMPLETIONS_API) {
     url = ENV.AZURE_COMPLETIONS_API;
     header['api-key'] = key;
